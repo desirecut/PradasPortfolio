@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pradas Portfolio</title>
+  <style>
+    :root {
+      --pill-bg: #161616;
+      --pill-border: #262626;
+      --pill-hover: #1f1f1f;
+      --text: #f5f5f5;
+      --text-dim: #d4d4d4;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      background: #050505;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      position: relative;
+    }
+
+    /* Starfield canvas sits behind everything */
+    #stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      display: block;
+    }
+
+    /* subtle vignette for depth */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 45%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%);
+    }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 18px;
+    }
+
+    .nav-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--text-dim);
+      border-radius: 9px;
+      padding: 9px 14px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .pill:hover {
+      background: var(--pill-hover);
+      border-color: #3a3a3a;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .icon-pill {
+      width: 38px;
+      height: 36px;
+      padding: 0;
+    }
+
+    .icon-pill svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--text-dim);
+      transition: fill 0.18s ease;
+    }
+
+    .icon-pill:hover svg {
+      fill: #fff;
+    }
+
+    /* ---------- Center hero ---------- */
+    .hero {
+      position: relative;
+      z-index: 2;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      text-align: center;
+    }
+
+    /* scroll cue under the hero */
+    .scroll-cue {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      color: var(--text-dim);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeCue 1s ease 1.6s forwards, bob 2.2s ease-in-out 2s infinite;
+    }
+
+    @keyframes fadeCue { to { opacity: 0.6; } }
+    @keyframes bob {
+      0%, 100% { transform: translate(-50%, 0); }
+      50% { transform: translate(-50%, 6px); }
+    }
+
+    /* ---------- About section ---------- */
+    .about {
+      position: relative;
+      z-index: 2;
+      min-height: 70vh;
+      padding: 110px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .about h2 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 800;
+      margin-bottom: 22px;
+      color: #fff;
+    }
+
+    .about-text {
+      max-width: 600px;
+      font-size: clamp(14px, 2vw, 17px);
+      line-height: 1.85;
+      color: var(--text-dim);
+    }
+
+    /* ---------- Work section ---------- */
+    .work {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      padding: 100px 24px 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .work h2 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .work .subtitle {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin-bottom: 48px;
+      max-width: 520px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 280px);
+      justify-content: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 920px;
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      background: rgba(20,20,20,0.6);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--pill-border);
+      border-radius: 14px;
+      padding: 22px;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      border: 1px solid #2a2a2a;
+      background: #000;
+    }
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease, filter 0.4s ease;
+      filter: brightness(0.8);
+    }
+    .card:hover .card-thumb img {
+      transform: scale(1.06);
+      filter: brightness(1);
+    }
+    .play-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      border: 1.5px solid rgba(255,255,255,0.8);
+      color: #fff;
+      font-size: 18px;
+      padding-left: 3px;
+      backdrop-filter: blur(2px);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .card:hover .play-badge {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: rgba(0,0,0,0.7);
+    }
+
+    .card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .card .card-link {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #6a6a6a;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 18px rgba(255,255,255,0.10);
+    }
+
+    .card:hover .card-link {
+      opacity: 1;
+      transform: translateX(0);
+      color: #fff;
+    }
+
+    /* button reset for cards */
+    .card {
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+    }
+
+    /* ---------- Modal popup ---------- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      position: relative;
+      width: 100%;
+      max-width: 560px;
+      background: rgba(22,22,22,0.95);
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.75);
+      transform: scale(0.6) translateY(60px) rotateX(-18deg);
+      transform-origin: center bottom;
+      opacity: 0;
+    }
+
+    /* springy pop-out when opening */
+    .modal-overlay.open .modal {
+      animation: popOut 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes popOut {
+      0% {
+        transform: scale(0.6) translateY(60px) rotateX(-18deg);
+        opacity: 0;
+        filter: blur(6px);
+      }
+      60% {
+        transform: scale(1.04) translateY(-6px) rotateX(0deg);
+        opacity: 1;
+        filter: blur(0);
+      }
+      100% {
+        transform: scale(1) translateY(0) rotateX(0deg);
+        opacity: 1;
+      }
+    }
+
+    .modal-video {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      background: #000;
+      border: 1px solid #2a2a2a;
+      display: none;
+    }
+    .modal-video.show {
+      display: block;
+    }
+
+    .modal h3 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+    }
+
+    .modal-body {
+      display: none;
+      margin-top: 18px;
+      text-align: center;
+    }
+    .modal-body.show {
+      display: block;
+    }
+    .modal-body p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+    }
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .modal-actions a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: #fff;
+      border-radius: 10px;
+      padding: 11px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+    .modal-actions a:hover {
+      background: var(--pill-hover);
+      border-color: #5a5a5a;
+      transform: translateY(-2px);
+    }
+
+    .modal p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-dim);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    /* reveal-on-scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px) scale(0.96);
+      filter: blur(8px);
+      transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.8s ease;
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+
+    /* ---------- Custom cursor ---------- */
+    @media (hover: hover) and (pointer: fine) {
+      * { cursor: none !important; }
+      .cursor-dot {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 200;
+        pointer-events: none;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        background: #fff;
+        box-shadow: 0 0 8px rgba(255,255,255,0.8);
+        transition: width 0.2s ease, height 0.2s ease;
+      }
+      .cursor-dot.hovering {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 7vw, 72px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      position: relative;
+      color: #fff;
+      animation: float 6s ease-in-out 1.6s infinite;
+    }
+
+    /* cinematic per-letter blur reveal */
+    .hero h1 .letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(40px) rotateX(-90deg);
+      filter: blur(12px);
+      transform-origin: bottom;
+      animation: letterIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      text-shadow: 0 0 28px rgba(255,255,255,0.18);
+    }
+
+    @keyframes letterIn {
+      to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+        filter: blur(0);
+      }
+    }
+
+    .purchase {
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 11px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: riseIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
+    }
+
+    /* sweeping light glare across the button */
+    .purchase::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(110deg, transparent, rgba(255,255,255,0.18), transparent);
+      transform: skewX(-20deg);
+      animation: glare 4.5s ease-in-out 1.6s infinite;
+    }
+
+    .purchase:hover {
+      background: var(--pill-hover);
+      border-color: #4a4a4a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 18px rgba(154,160,255,0.15);
+    }
+
+    /* top bar pills ease in from the top */
+    .topbar .nav-group {
+      opacity: 0;
+      transform: translateY(-14px);
+      animation: dropIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+    }
+
+    @keyframes riseIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes dropIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    @keyframes glare {
+      0% { left: -120%; }
+      35%, 100% { left: 140%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero h1, .purchase, .topbar .nav-group {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+      .purchase::before { display: none; }
+    }
+
+    /* ---------- Scroll progress bar ---------- */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      z-index: 100;
+      background: linear-gradient(90deg, #6b7280, #ffffff);
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      transition: width 0.08s linear;
+    }
+
+    /* ---------- Mouse spotlight ---------- */
+    .spotlight {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(280px circle at var(--mx, -100px) var(--my, -100px), rgba(255,255,255,0.06), transparent 70%);
+      transition: background 0.1s ease;
+    }
+
+    /* ---------- Aurora glow ---------- */
+    .aurora {
+      position: fixed;
+      inset: -20% -10% auto -10%;
+      height: 90vh;
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(80px);
+      opacity: 0.5;
+      background:
+        radial-gradient(40% 50% at 30% 40%, rgba(80,90,160,0.30), transparent 70%),
+        radial-gradient(35% 45% at 70% 30%, rgba(150,120,180,0.22), transparent 70%),
+        radial-gradient(30% 40% at 50% 60%, rgba(60,120,150,0.20), transparent 70%);
+      animation: auroraShift 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes auroraShift {
+      0%   { transform: translate(-4%, -2%) scale(1); }
+      50%  { transform: translate(5%, 3%) scale(1.15); }
+      100% { transform: translate(-3%, 4%) scale(1.05); }
+    }
+
+    /* ---------- Back to top ---------- */
+    .to-top {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 40;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px) scale(0.8);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .to-top.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .to-top:hover {
+      background: var(--pill-hover);
+      border-color: #5a5a5a;
+      transform: translateY(-3px) scale(1.05);
+    }
+
+    /* card tilt needs preserve-3d feel */
+    .card {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    @media (max-width: 480px) {
+      .nav-group .pill { font-size: 11px; padding: 8px 11px; }
+      .hero { gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar" id="progress"></div>
+  <div class="aurora"></div>
+  <canvas id="stars"></canvas>
+  <div class="vignette"></div>
+  <div class="spotlight" id="spotlight"></div>
+
+  <header class="topbar">
+    <nav class="nav-group">
+      <a class="pill icon-pill" href="#" aria-label="Discord" title="Discord">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3.2a.075.075 0 0 0-.079.037c-.34.6-.717 1.385-.98 2.001a18.27 18.27 0 0 0-5.487 0 12.6 12.6 0 0 0-.997-2.001.078.078 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C1.27 7.95.63 11.434.944 14.872a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.371-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.245.198.372.292a.077.077 0 0 1-.006.127c-.598.349-1.22.645-1.873.892a.076.076 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-3.977-.838-7.432-3.549-10.476a.06.06 0 0 0-.031-.028zM8.02 12.78c-1.182 0-2.157-1.085-2.157-2.419 0-1.333.956-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.946 2.419-2.157 2.419z"/>
+        </svg>
+      </a>
+    </nav>
+    <nav class="nav-group">
+      <a class="pill icon-pill" href="https://www.roblox.com/users/profile?username=ItsFrostByteDev" target="_blank" rel="noopener" aria-label="Roblox" title="Roblox">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.83 0 0 19.17 19.17 24 24 4.83 4.83 0zm9.78 14.61-5.22-1.4 1.4-5.22 5.22 1.4-1.4 5.22z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <h1 id="title">Pradas Portfolio</h1>
+    <a class="purchase magnetic" href="#about">View</a>
+  </main>
+
+  <section class="about" id="about">
+    <h2 class="reveal">Who I Am</h2>
+    <p class="about-text reveal">
+      Hi, I'm Prada! A roblox scripter who has been scripting for around one year. I am always looking to improve my skills and learn new things.
+    </p>
+  </section>
+
+  <section class="work" id="work">
+    <h2 class="reveal">My Work</h2>
+    <p class="subtitle reveal">A collection of projects and things I've been building. More coming soon.</p>
+
+    <div class="grid">
+      <button class="card reveal"
+        data-title="Backrooms Movement System"
+        data-video="assets/backrooms-movement.mp4"
+        data-desc="A first person movement system for a backrooms game with sprinting, crouching and head bob. 218 lines of code.">
+        <div class="card-thumb">
+          <img src="assets/backrooms-thumb.jpg" alt="Backrooms Movement System preview" loading="lazy" />
+          <span class="play-badge">&#9658;</span>
+        </div>
+        <h3>Backrooms Movement System</h3>
+        <p>A first person movement system for a backrooms game with sprinting, crouching and head bob. 218 lines of code.</p>
+        <span class="card-link">Watch Video &rarr;</span>
+      </button>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <video id="modalVideo" class="modal-video" controls playsinline preload="metadata"></video>
+      <h3 id="modalTitle"></h3>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <button class="to-top" id="toTop" aria-label="Back to top">&uarr;</button>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <script>
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    let w, h;
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      const count = Math.floor((w * h) / 6000);
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push(makeFlake(Math.random() * h));
+      }
+    }
+
+    function makeFlake(startY) {
+      const r = Math.random() * 1.4 + 0.3;
+      return {
+        x: Math.random() * w,
+        y: startY,
+        r: r,
+        // larger flakes fall a bit faster (parallax depth)
+        vy: (r * 0.18) + Math.random() * 0.25 + 0.1,
+        drift: Math.random() * 0.4 + 0.1,
+        driftPhase: Math.random() * Math.PI * 2,
+        driftSpeed: Math.random() * 0.01 + 0.004,
+        baseAlpha: Math.random() * 0.5 + 0.2,
+        twinkleSpeed: Math.random() * 0.015 + 0.003,
+        phase: Math.random() * Math.PI * 2
+      };
+    }
+
+    // ---------- Shooting stars ----------
+    let shooters = [];
+    function spawnShooter() {
+      const startX = Math.random() * w * 0.7;
+      const startY = Math.random() * h * 0.4;
+      const angle = Math.PI / 5 + Math.random() * 0.3;
+      const speed = 8 + Math.random() * 6;
+      shooters.push({
+        x: startX,
+        y: startY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        len: 80 + Math.random() * 120,
+        life: 1
+      });
+    }
+    function scheduleShooter() {
+      setTimeout(() => {
+        spawnShooter();
+        scheduleShooter();
+      }, 2500 + Math.random() * 4000);
+    }
+    scheduleShooter();
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+
+        // fall + gentle horizontal sway
+        s.y += s.vy;
+        s.driftPhase += s.driftSpeed;
+        s.x += Math.sin(s.driftPhase) * s.drift;
+
+        // recycle flake to the top once it leaves the bottom
+        if (s.y - s.r > h) {
+          stars[i] = makeFlake(-s.r);
+          continue;
+        }
+
+        s.phase += s.twinkleSpeed;
+        const alpha = s.baseAlpha + Math.sin(s.phase) * 0.2;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${Math.max(0, alpha)})`;
+        ctx.fill();
+      }
+
+      // draw shooting stars
+      for (let i = shooters.length - 1; i >= 0; i--) {
+        const sh = shooters[i];
+        sh.x += sh.vx;
+        sh.y += sh.vy;
+        sh.life -= 0.012;
+
+        const tailX = sh.x - sh.vx / Math.hypot(sh.vx, sh.vy) * sh.len;
+        const tailY = sh.y - sh.vy / Math.hypot(sh.vx, sh.vy) * sh.len;
+        const grad = ctx.createLinearGradient(sh.x, sh.y, tailX, tailY);
+        grad.addColorStop(0, `rgba(255,255,255,${Math.max(0, sh.life)})`);
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sh.x, sh.y);
+        ctx.lineTo(tailX, tailY);
+        ctx.stroke();
+
+        if (sh.life <= 0 || sh.x > w + 100 || sh.y > h + 100) {
+          shooters.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    // reveal-on-scroll with stagger
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const delay = el.dataset.delay || 0;
+          setTimeout(() => el.classList.add('in'), delay);
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    revealEls.forEach((el, i) => {
+      el.dataset.delay = i * 110;
+      observer.observe(el);
+    });
+
+    // project card popup modal
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalClose = document.getElementById('modalClose');
+    const modalVideo = document.getElementById('modalVideo');
+    const modalBody = document.getElementById('modalBody');
+
+    function openModal({ title, video, bodyHTML }) {
+      modalTitle.textContent = title || '';
+      if (video) {
+        modalVideo.src = video;
+        modalVideo.classList.add('show');
+      } else {
+        modalVideo.removeAttribute('src');
+        modalVideo.load();
+        modalVideo.classList.remove('show');
+      }
+      if (bodyHTML) {
+        modalBody.innerHTML = bodyHTML;
+        modalBody.classList.add('show');
+      } else {
+        modalBody.innerHTML = '';
+        modalBody.classList.remove('show');
+      }
+      // restart the pop-out animation each open
+      modal.classList.remove('open');
+      void modal.offsetWidth;
+      modal.classList.add('open');
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      modalVideo.pause();
+    }
+
+    document.querySelectorAll('.card').forEach((card) => {
+      card.addEventListener('click', () => {
+        openModal({ title: card.dataset.title, video: card.dataset.video });
+      });
+    });
+
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ---------- Scroll progress bar + back-to-top ----------
+    const progress = document.getElementById('progress');
+    const toTop = document.getElementById('toTop');
+    function onScroll() {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+      progress.style.width = pct + '%';
+      toTop.classList.toggle('show', window.scrollY > 400);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ---------- Mouse spotlight + star parallax ----------
+    const spotlight = document.getElementById('spotlight');
+    window.addEventListener('mousemove', (e) => {
+      spotlight.style.setProperty('--mx', e.clientX + 'px');
+      spotlight.style.setProperty('--my', e.clientY + 'px');
+    });
+
+    // ---------- 3D tilt on cards ----------
+    document.querySelectorAll('.card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform =
+          `translateY(-4px) perspective(700px) rotateX(${-py * 8}deg) rotateY(${px * 8}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    // ---------- Cinematic letter-by-letter title reveal ----------
+    const titleEl = document.getElementById('title');
+    const titleText = titleEl.textContent;
+    titleEl.innerHTML = '';
+    titleText.split('').forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.className = 'letter';
+      span.textContent = ch === ' ' ? '\u00A0' : ch;
+      span.style.animationDelay = (0.25 + i * 0.045) + 's';
+      titleEl.appendChild(span);
+    });
+
+    // ---------- Custom cursor dot ----------
+    const cursorDot = document.getElementById('cursorDot');
+    window.addEventListener('mousemove', (e) => {
+      cursorDot.style.left = e.clientX + 'px';
+      cursorDot.style.top = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, .card').forEach((el) => {
+      el.addEventListener('mouseenter', () => cursorDot.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursorDot.classList.remove('hovering'));
+    });
+
+    // ---------- Magnetic View button ----------
+    document.querySelectorAll('.magnetic').forEach((el) => {
+      el.addEventListener('mousemove', (e) => {
+        const r = el.getBoundingClientRect();
+        const mx = e.clientX - (r.left + r.width / 2);
+        const my = e.clientY - (r.top + r.height / 2);
+        el.style.transform = `translate(${mx * 0.4}px, ${my * 0.4}px) scale(1.06)`;
+      });
+      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+    });
+  </script>
+</body>
+</html>
